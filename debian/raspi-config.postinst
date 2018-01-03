@@ -1,7 +1,0 @@
-#!/bin/sh
-
-if [ -e /etc/init.d/switch_cpu_governor ]; then
-  update-rc.d switch_cpu_governor remove >/dev/null
-fi
-
-#DEBHELPER#
