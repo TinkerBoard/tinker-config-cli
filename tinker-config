@@ -452,18 +452,7 @@ do_audio_auto_detect() {
   fi
   if [ $RET -eq 0 ]; then
     sed -i /etc/audio/audio.conf -e "s/^jack_auto_switch=.*/jack_auto_switch=\"on\"/"
-
-    PLUG_OUT_DEV=$(whiptail --menu "Switch audio output to which device when audio jack plug out?" 20 60 10 --cancel-button "Don't Switch" --ok-button Select \
-    "1" "BT VOIP" \
-    "2" "SPDIF" \
-    "3" "HDMI" \
-    3>&1 1>&2 2>&3)
-    if [ $? -eq 0 ]; then
-      sed -i /etc/audio/audio.conf -e "s/^jack_remove_device=.*/jack_remove_device=\"$PLUG_OUT_DEV\"/"
-    elif [ $? -eq 1 ]; then
-      sed -i /etc/audio/audio.conf -e "s/^jack_remove_device=.*/jack_remove_device=\"0\"/"
-    fi
-      STATUS=enabled
+    STATUS=enabled
   elif [ $RET -eq 1 ]; then
     sed -i /etc/audio/audio.conf -e "s/^jack_auto_switch=.*/jack_auto_switch=\"off\"/"
     STATUS=disabled
@@ -489,21 +478,27 @@ do_audio() {
          do_audio_auto_detect
          ;;
       1)
-         /etc/pulse/movesinks.sh alsa_output.OnBoard_D0
+         AUDIO_ARG="alsa_output.OnBoard_D0"
          ;;
       2)
-         /etc/pulse/movesinks.sh alsa_output.OnBoard_D1
+         AUDIO_ARG="alsa_output.OnBoard_D1"
          ;;
       3)
-         /etc/pulse/movesinks.sh alsa_output.OnBoard_D2
+         AUDIO_ARG="alsa_output.OnBoard_D2"
          ;;
       4)
-         /etc/pulse/movesinks.sh alsa_output.platform-sound-simple-card.analog-stereo
+         AUDIO_ARG="alsa_output.platform-sound-simple-card.analog-stereo"
          ;;
       *)
          whiptail --msgbox "Programmer error: unrecognized option" 20 60 1
          ;;
     esac
+    if ! [ "$AUDIO_ARG" = "" ]; then 
+      /etc/pulse/movesinks.sh $AUDIO_ARG
+      if grep -q "^jack_auto_switch=\"on\"" /etc/audio/audio.conf; then
+        sudo sed -i 's/jack_default_device=.*/jack_default_device="'$AUDIO_ARG'"/' /etc/audio/audio.conf 
+      fi
+    fi
   fi
 }
 
