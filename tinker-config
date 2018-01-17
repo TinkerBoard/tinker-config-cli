@@ -1125,6 +1125,19 @@ do_boot_menu() {
 #
 if [ "$INTERACTIVE" = True ]; then
   calc_wt_size
+
+  whiptail --msgbox "Welcome to the Tinker Board Configuration Tool (Experimental).
+
+This version is based off the popular version from the SBC (single board computer) community and is still in its development stage. 
+
+Currently some features may not be available as they were not originally designed for the Tinker board or are still under development. Please understand that you may encounter situations where some features cannot be used.
+
+In addition, you can find the open source available on GitHub. We welcome you to visit the forum or GitHub to ask questions, discuss and give your suggestions on how to improve this tool.
+
+GitHub : http://github.com/tinkerboard
+Forum : http://tinkerboarding.co.uk/forum
+" $WT_HEIGHT $WT_WIDTH 1
+
   while true; do
     FUN=$(whiptail --title "Asus Tinker Board Software Configuration Tool (tinker-config)" --menu "Setup Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Finish --ok-button Select \
       "1 Hostname" "Set the visible name for this Tinker Board on a network" \
