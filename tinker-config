@@ -553,8 +553,8 @@ get_vnc() {
 
 set_vnc_passwd() {
   if [ ! -e /home/linaro/.vnc/passwd ]; then
-    mkdir /home/linaro/.vnc
-    touch /home/linaro/.vnc/passwd
+    sudo -i -u linaro mkdir /home/linaro/.vnc
+    sudo -i -u linaro touch /home/linaro/.vnc/passwd
     chmod 600 /home/linaro/.vnc/passwd
   fi
   sudo -i -u linaro vncpasswd -f <<< $1 > /home/linaro/.vnc/passwd
