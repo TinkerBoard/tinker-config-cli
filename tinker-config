@@ -299,6 +299,46 @@ do_wifi_country() {
 # do_advanced_menu functions
 #
 
+get_wlan_verbose_log() {
+    if grep -q "^WLAN_VLOG_STAT=enabled" /etc/init.d/rockchip.sh ; then
+      echo 0
+    else
+      echo 1
+    fi
+}
+
+do_wlan_verbose_log(){
+  DEFAULT=--defaultno
+  if [ $(get_wlan_verbose_log) -eq 0 ]; then
+    DEFAULT=
+  fi
+  if [ "$INTERACTIVE" = True ]; then
+    whiptail --yesno "Would you like to enable wlan verbose log?" $DEFAULT 20 60 2 \
+        --yes-button Enable --no-button Disable
+    RET=$?
+  else
+    RET=$1
+  fi
+  if [ $RET -eq 0 ]; then
+    dbus-send --system --print-reply --dest=fi.w1.wpa_supplicant1 /fi/w1/wpa_supplicant1 org.freedesktop.DBus.Properties.Set string:fi.w1.wpa_supplicant1 string:DebugTimestamp variant:boolean:true
+    dbus-send --system --print-reply --dest=fi.w1.wpa_supplicant1 /fi/w1/wpa_supplicant1 org.freedesktop.DBus.Properties.Set string:fi.w1.wpa_supplicant1 string:DebugLevel variant:string:"debug"
+    dbus-send --system --print-reply --dest=org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager.SetLogging string:"debug" string:""
+    sed -i /etc/init.d/rockchip.sh -e "s/^WLAN_VLOG_STAT=.*/WLAN_VLOG_STAT=enabled/"
+    STATUS=enabled
+  elif [ $RET -eq 1 ]; then
+    dbus-send --system --print-reply --dest=fi.w1.wpa_supplicant1 /fi/w1/wpa_supplicant1 org.freedesktop.DBus.Properties.Set string:fi.w1.wpa_supplicant1 string:DebugTimestamp variant:boolean:false
+    dbus-send --system --print-reply --dest=fi.w1.wpa_supplicant1 /fi/w1/wpa_supplicant1 org.freedesktop.DBus.Properties.Set string:fi.w1.wpa_supplicant1 string:DebugLevel variant:string:"info"
+    dbus-send --system --print-reply --dest=org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager.SetLogging string:"info" string:""
+    sed -i /etc/init.d/rockchip.sh -e "s/^WLAN_VLOG_STAT=.*/WLAN_VLOG_STAT=disabled/"
+    STATUS=disabled
+  else
+    return $RET
+  fi
+  if [ "$INTERACTIVE" = True ]; then
+    whiptail --msgbox "wlan verbose log is $STATUS" 20 60 1
+  fi
+}
+
 do_expand_rootfs() {
   ROOT_PART=$(mount | sed -n 's|^/dev/\(.*\) on / .*|\1|p')
   PART_NUM=${ROOT_PART#mmcblk0p}
@@ -1087,6 +1127,7 @@ do_advanced_menu() {
     FUN=$(whiptail --title "Asus Tinker Board Software Configuration Tool (tinker-config)" --menu "Advanced Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
       "A1 Expand Filesystem" "Ensures that all of the SD card storage is available to the OS" \
       "A2 Resolution" "Set a specific screen resolution" \
+      "A3 Wlan Verbose Log" "Enable/disable wlan verbose log" \
       3>&1 1>&2 2>&3)
     RET=$?
     if [ $RET -eq 1 ]; then
@@ -1095,6 +1136,7 @@ do_advanced_menu() {
       case "$FUN" in
         A1\ *) do_expand_rootfs ;;
         A2\ *) do_resolution ;;
+        A3\ *) do_wlan_verbose_log ;;
         *) whiptail --msgbox "Programmer error: unrecognized option" 20 60 1 ;;
       esac || whiptail --msgbox "There was an error running option $FUN" 20 60 1
     fi
