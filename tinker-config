@@ -583,17 +583,23 @@ do_ssh() {
   fi
 }
 
-get_vnc() {
-  if netstat -nal | grep -q 5901 ; then 
-    echo 0
+get_vnc(){
+  if [ -e /lib/systemd/system/tightvncserver.service ]; then
+    if systemctl status tightvncserver.service | grep -q -E "enabled;"; then
+      echo 0
+    else
+      echo 1
+    fi
   else
     echo 1
   fi
 }
 
 set_vnc_passwd() {
-  if [ ! -e /home/linaro/.vnc/passwd ]; then
+  if [ ! -e /home/linaro/.vnc ]; then
     sudo -i -u linaro mkdir /home/linaro/.vnc
+  fi
+  if [ ! -e /home/linaro/.vnc/passwd ]; then
     sudo -i -u linaro touch /home/linaro/.vnc/passwd
     chmod 600 /home/linaro/.vnc/passwd
   fi
@@ -606,8 +612,7 @@ do_vnc() {
     DEFAULT=
   fi
   if [ "$INTERACTIVE" = True ]; then
-    whiptail --yesno "Would you like the VNC Server to be enabled?" $DEFAULT 20 60 2 \
-        --yes-button Enable --no-button Disable
+    whiptail --yesno "Would you like to automatically start the VNC server at boot?" $DEFAULT 20 60 2 
     RET=$?
   else
     RET=$1
@@ -623,16 +628,42 @@ do_vnc() {
       whiptail --msgbox "You will now be asked to enter a password for VNC server" 20 60 2
       sudo -i -u linaro vncpasswd
     fi
-    sudo -i -u linaro tightvncserver :1
-    STATUS=enabled
+    if [ -e /lib/systemd/system/tightvncserver.service ]; then
+      sudo systemctl stop tightvncserver.service
+      sudo systemctl disable tightvncserver.service
+      sudo rm /lib/systemd/system/tightvncserver.service
+    fi
+    cat > /lib/systemd/system/tightvncserver.service << EOF
+[Unit]
+Description=TightVNC Server
+After=sshd.service network.target
+
+[Service]
+Type=forking
+User=linaro
+ExecStartPre=-/usr/bin/tightvncserver -kill :1 > /dev/null 2>&1
+ExecStart=/usr/bin/tightvncserver :1
+ExecStop=/usr/bin/tightvncserver -kill :1
+[Install]
+WantedBy=multi-user.target
+EOF
+    sudo systemctl daemon-reload
+    sudo systemctl start tightvncserver.service
+    sudo systemctl enable tightvncserver.service
+    VNC_BOOT_STATUS=enabled
   elif [ $RET -eq 1 ]; then
-    sudo -i -u linaro tightvncserver -kill :1
-    STATUS=disabled
+    if [ -e /lib/systemd/system/tightvncserver.service ]; then
+      sudo systemctl stop tightvncserver.service
+      sudo systemctl disable tightvncserver.service
+      sudo rm /lib/systemd/system/tightvncserver.service
+      sudo systemctl daemon-reload
+    fi
+    VNC_BOOT_STATUS=disabled
   else
     return $RET
   fi
   if [ "$INTERACTIVE" = True ]; then
-    whiptail --msgbox "The VNC server is $STATUS" 20 60 1
+    whiptail --msgbox "Starting VNC server at boot is $VNC_BOOT_STATUS" 20 60 1
   fi
 }
 
