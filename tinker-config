@@ -46,10 +46,7 @@ do_update() {
 
 do_about() {
   whiptail --msgbox "\
-  This tool provides a straight-forward way of doing initial
-  configuration of the Asus Tinkerboard. Although it can be run
-  at any time, some of the options may have difficulties if
-  you have heavily customised your installation.\
+Asus Tinkerboard Software Configuration Tool v1.0.2 \n\nThis tool provides a straight-forward way of doing initial configuration of the Asus Tinkerboard. Although it can be run at any time, some of the options may have difficulties if you have heavily customised your installation.\
   " 20 70 1
 }
 
@@ -455,7 +452,7 @@ do_resolution() {
       value=$(DISPLAY=:0.0 xrandr | sed '1,2d'  | grep '^[ ]*[0-9]' | sed 's/\([0-9]\+\)x\([0-9]\+\)[ ]*\([0-9]\+\).\([0-9]\+\).* / \1x\2  \3.\4Hz/')
 
 
-      FUN=$(whiptail --title "Asus Tinker Board Software Configuration Tool (tinker-config)" \
+      FUN=$(whiptail --title "Asus Tinkerboard Software Configuration Tool (tinker-config)" \
       --menu "Choose screen resolution" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT \
       $value "Custom    " "Add and set a custom screen resolution" 3>&1 1>&2 2>&3)
       RET=$?
@@ -1072,7 +1069,7 @@ if [ $(id -u) -ne 0 ]; then
 fi
 
 do_internationalisation_menu() {
-  FUN=$(whiptail --title "Asus Tinker Board Software Configuration Tool (tinker-config)" --menu "Internationalisation Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
+  FUN=$(whiptail --title "Asus Tinkerboard Software Configuration Tool (tinker-config)" --menu "Internationalisation Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
     "I1 Change Locale" "Set up language and regional settings to match your location" \
     "I2 Change Timezone" "Set up timezone to match your location" \
     "I3 Change Keyboard Layout" "Set the keyboard layout to match your keyboard" \
@@ -1093,7 +1090,7 @@ do_internationalisation_menu() {
 }
 
 do_interface_menu() {
-  FUN=$(whiptail --title "Asus Tinker Board Software Configuration Tool (tinker-config)" --menu "Interface Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
+  FUN=$(whiptail --title "Asus Tinkerboard Software Configuration Tool (tinker-config)" --menu "Interface Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
     "F1 Audio" "Audio device setting" \
     "F2 SSH" "Enable/Disable remote command line access to your Tinkerboard using SSH" \
     "F3 VNC" "Enable/Disable graphical remote access to your Tinkerboard using VNC" \
@@ -1124,7 +1121,7 @@ do_interface_menu() {
 }
 
 do_advanced_menu() {
-    FUN=$(whiptail --title "Asus Tinker Board Software Configuration Tool (tinker-config)" --menu "Advanced Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
+    FUN=$(whiptail --title "Asus Tinkerboard Software Configuration Tool (tinker-config)" --menu "Advanced Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
       "A1 Expand Filesystem" "Ensures that all of the SD card storage is available to the OS" \
       "A2 Resolution" "Set a specific screen resolution" \
       "A3 Wlan Verbose Log" "Enable/disable wlan verbose log" \
@@ -1143,7 +1140,7 @@ do_advanced_menu() {
 }
 
 do_boot_menu() {
-  FUN=$(whiptail --title "Asus Tinker Board Software Configuration Tool (tinker-config)" --menu "Boot Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
+  FUN=$(whiptail --title "Asus Tinkerboard Software Configuration Tool (tinker-config)" --menu "Boot Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
     "B1 Desktop / CLI" "Choose whether to boot into a desktop environment or the command line" \
     "B2 Wait for Network at Boot" "Choose whether to wait for network connection during boot" \
     "B3 Splash Screen" "Choose graphical splash screen or text boot" \
@@ -1181,7 +1178,7 @@ Forum : http://tinkerboarding.co.uk/forum
 " $WT_HEIGHT $WT_WIDTH 1
 
   while true; do
-    FUN=$(whiptail --title "Asus Tinker Board Software Configuration Tool (tinker-config)" --menu "Setup Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Finish --ok-button Select \
+    FUN=$(whiptail --title "Asus Tinkerboard Software Configuration Tool (tinker-config)" --menu "Setup Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Finish --ok-button Select \
       "1 Hostname" "Set the visible name for this Tinker Board on a network" \
       "2 Change User Password" "Change password for the default user (linaro)" \
       "3 Boot Options" "Configure options for start-up" \
